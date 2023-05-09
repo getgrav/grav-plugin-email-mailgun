@@ -50,11 +50,12 @@ class EmailMailgunPlugin extends Plugin
         $engine = $e['engine'];
         if ($engine === 'mailgun') {
             $options = $this->config->get('plugins.email-mailgun');
-            $dsn = "mailgun+{$options['transport']}://";
+            $transport = $options['transport'] ?? 'api';
+            $dsn = "mailgun+{$transport}://";
             if ($options['transport'] === 'smtp') {
-                $dsn .= urlencode($options['username']) .":".urlencode($options['password']);
+                $dsn .= urlencode($options['username'] ?? '') .":".urlencode($options['password'] ?? '');
             } else {
-                $dsn .= urlencode($options['api_key']) .":".urlencode($options['domain']);
+                $dsn .= urlencode($options['api_key'] ?? '') .":".urlencode($options['domain'] ?? '');
             }
             $dsn .= "@default";
             $e['dsn'] = $dsn;

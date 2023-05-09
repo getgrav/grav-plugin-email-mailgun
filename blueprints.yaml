@@ -1,7 +1,7 @@
 name: Email Mailgun
 slug: email-mailgun
 type: plugin
-version: 1.0.0
+version: 1.0.1
 description: Mailgun integration for new Email plugin
 icon: envelope
 author:
