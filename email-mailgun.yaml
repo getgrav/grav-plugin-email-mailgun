@@ -1,6 +1,6 @@
 enabled: true
-transport: smtp
-username: postmaster@sandbox827cca08d93f49738b372ee46f25b7f9.mailgun.org
-password: 0386d4965bd2c7c3a7fd9cceb18a9bba-4534758e-4b34f8a8
-api_key: 48df135cf9a173f7e03d6e11be70126d-4534758e-5e5e1069
-domain: sandbox827cca08d93f49738b372ee46f25b7f9.mailgun.org
+transport: api
+username:
+password:
+api_key:
+domain:
