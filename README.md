@@ -44,6 +44,7 @@ Also set your `from`/`to` addresses there as usual.
 - **API vs HTTPS vs SMTP**: `api` is fastest and supports modern features. `https` uses basic HTTP auth. `smtp` works if HTTP is blocked.
 - **Region**: choose `eu` if your Mailgun domain lives in the EU region; otherwise leave `us`. The DSN is generated with `?region=<us|eu>`.
 - **Debugging**: enable `plugins.email.debug: true` in `email.yaml` to log the full transport debug output to `logs/email.log`.
+- **Validation**: API/HTTPS require `api_key` **and** `domain`; SMTP requires `username` **and** `password`. Missing fields raise a clear error during transport creation.
 
 ## Links
 
