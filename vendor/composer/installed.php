@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'getgrav/email-mailgun',
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
-        'reference' => NULL,
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '5bf50b6935f441b3b2326cde92acfb7ea0f1c19e',
         'type' => 'grav-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'getgrav/email-mailgun' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
-            'reference' => NULL,
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '5bf50b6935f441b3b2326cde92acfb7ea0f1c19e',
             'type' => 'grav-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -32,9 +32,9 @@
             ),
         ),
         'symfony/mailgun-mailer' => array(
-            'pretty_version' => 'v5.4.7',
-            'version' => '5.4.7.0',
-            'reference' => 'a261eb5145bd9456a9c68445eac1553c4a75d392',
+            'pretty_version' => 'v5.4.35',
+            'version' => '5.4.35.0',
+            'reference' => 'fbb1f557f5da0d09bda2fa0fd3d415350f418295',
             'type' => 'symfony-mailer-bridge',
             'install_path' => __DIR__ . '/../symfony/mailgun-mailer',
             'aliases' => array(),

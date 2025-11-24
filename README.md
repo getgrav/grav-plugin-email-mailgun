@@ -1,46 +1,51 @@
 # Email Mailgun Plugin
 
-**This README.md file should be modified to describe the features, installation, configuration, and general usage of the plugin.**
-
-The **Email Mailgun** Plugin is an extension for [Grav CMS](https://github.com/getgrav/grav). Mailgun integration for new Email plugin
+Mailgun transport for the Grav Email plugin (Symfony Mailer). Supports Mailgun API, HTTPS and SMTP transports, including region selection (`us`/`eu`).
 
 ## Installation
 
-Installing the Email Mailgun plugin can be done in one of three ways: The GPM (Grav Package Manager) installation method lets you quickly install the plugin with a simple terminal command, the manual method lets you do so via a zip file, and the admin method lets you do so via the Admin Plugin.
+From your Grav root:
 
-### GPM Installation (Preferred)
+```bash
+bin/gpm install email-mailgun
+```
 
-To install the plugin via the [GPM](https://learn.getgrav.org/cli-console/grav-cli-gpm), through your system's terminal (also called the command line), navigate to the root of your Grav-installation, and enter:
-
-    bin/gpm install email-mailgun
-
-This will install the Email Mailgun plugin into your `/user/plugins`-directory within Grav. Its files can be found under `/your/site/grav/user/plugins/email-mailgun`.
-
-### Admin Plugin
-
-If you use the Admin Plugin, you can install the plugin directly by browsing the `Plugins`-menu and clicking on the `Add` button.
+or install from the Admin panel via **Plugins → Add**.
 
 ## Configuration
 
-Before configuring this plugin, you should copy the `user/plugins/email-mailgun/email-mailgun.yaml` to `user/config/plugins/email-mailgun.yaml` and only edit that copy.
-
-Here is the default configuration and an explanation of available options:
+Copy the default config to `user/config/plugins/email-mailgun.yaml` and adjust:
 
 ```yaml
 enabled: true
+transport: api        # api (recommended), https, or smtp
+api_key: YOUR_KEY     # API/HTTPS only
+domain: yourdomain.tld # API/HTTPS only
+region: us            # us or eu (matches your Mailgun domain region)
+username:             # SMTP only
+password:             # SMTP only
 ```
 
-Note that if you use the Admin Plugin, a file with your configuration named email-mailgun.yaml will be saved in the `user/config/plugins/`-folder once the configuration is saved in the Admin.
+Admin UI exposes the same fields, including the region selector.
 
-## Usage
+### Set the email engine
 
-**Describe how to use the plugin.**
+In `user/config/plugins/email.yaml`:
 
-## Credits
+```yaml
+mailer:
+  engine: mailgun
+```
 
-**Did you incorporate third-party code? Want to thank somebody?**
+Also set your `from`/`to` addresses there as usual.
 
-## To Do
+## Usage notes
 
-- [ ] Future plans, if any
+- **API vs HTTPS vs SMTP**: `api` is fastest and supports modern features. `https` uses basic HTTP auth. `smtp` works if HTTP is blocked.
+- **Region**: choose `eu` if your Mailgun domain lives in the EU region; otherwise leave `us`. The DSN is generated with `?region=<us|eu>`.
+- **Debugging**: enable `plugins.email.debug: true` in `email.yaml` to log the full transport debug output to `logs/email.log`.
 
+## Links
+
+- Mailgun API docs: https://documentation.mailgun.com/en/latest/api-intro.html
+- Symfony Mailgun mailer bridge: https://github.com/symfony/mailgun-mailer

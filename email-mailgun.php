@@ -58,6 +58,9 @@ class EmailMailgunPlugin extends Plugin
                 $dsn .= urlencode($options['api_key'] ?? '') .":".urlencode($options['domain'] ?? '');
             }
             $dsn .= "@default";
+            if (!empty($options['region'])) {
+                $dsn .= '?region=' . urlencode($options['region']);
+            }
             $e['dsn'] = $dsn;
             $e->stopPropagation();
         }

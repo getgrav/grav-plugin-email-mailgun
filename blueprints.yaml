@@ -50,6 +50,16 @@ form:
       type: text
       label: Domain (for API Only)
 
+    region:
+      type: select
+      size: small
+      label: Region (for API/SMTP)
+      default: us
+      help: Select eu if your Mailgun domain is hosted in the EU region.
+      options:
+        us: US
+        eu: EU
+
     username:
       type: text
       label: Username (for SMTP Only)
