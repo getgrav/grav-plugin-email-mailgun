@@ -51,13 +51,45 @@ class EmailMailgunPlugin extends Plugin
         if ($engine === 'mailgun') {
             $options = $this->config->get('plugins.email-mailgun');
             $transport = $options['transport'] ?? 'api';
-            $dsn = "mailgun+{$transport}://";
-            if ($options['transport'] === 'smtp') {
-                $dsn .= urlencode($options['username'] ?? '') .":".urlencode($options['password'] ?? '');
-            } else {
-                $dsn .= urlencode($options['api_key'] ?? '') .":".urlencode($options['domain'] ?? '');
+
+            switch ($transport) {
+                case 'smtp':
+                    $username = $options['username'] ?? '';
+                    $password = $options['password'] ?? '';
+                    if (empty($username) || empty($password)) {
+                        throw new \RuntimeException('Mailgun SMTP transport requires both username and password.');
+                    }
+                    $dsn = sprintf(
+                        'mailgun+smtp://%s:%s@default',
+                        urlencode($username),
+                        urlencode($password)
+                    );
+                    break;
+
+                case 'https':
+                case 'api':
+                default:
+                    $apiKey = $options['api_key'] ?? '';
+                    $domain = $options['domain'] ?? '';
+                    if (empty($apiKey)) {
+                        throw new \RuntimeException('Mailgun API/HTTPS transport requires an api_key.');
+                    }
+                    if (empty($domain)) {
+                        throw new \RuntimeException('Mailgun API/HTTPS transport requires a domain.');
+                    }
+                    $dsn = sprintf(
+                        'mailgun+%s://%s:%s@default',
+                        $transport,
+                        urlencode($apiKey),
+                        urlencode($domain)
+                    );
+                    break;
             }
-            $dsn .= "@default";
+
+            if (!empty($options['region'])) {
+                $dsn .= (str_contains($dsn, '?') ? '&' : '?') . 'region=' . urlencode($options['region']);
+            }
+
             $e['dsn'] = $dsn;
             $e->stopPropagation();
         }
