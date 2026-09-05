@@ -1,7 +1,7 @@
 name: Email Mailgun
 slug: email-mailgun
 type: plugin
-version: 1.0.2
+version: 1.1.0
 description: Mailgun integration for new Email plugin
 icon: envelope
 author:
@@ -70,3 +70,8 @@ form:
     password:
       type: text
       label: Password (for SMTP Only)
+
+    signing_key:
+      type: password
+      label: Webhook Signing Key
+      help: "Only needed if something on this site reads Mailgun's delivery reports. It is a different string from the API key above: find it in Mailgun under your profile menu, on the API Security page, as the HTTP webhook signing key. Every webhook Mailgun posts is signed with it, and without it the events cannot be told apart from anybody else's. Leave it empty and it will be filled in for you the first time a webhook is set up from here with an account key."
