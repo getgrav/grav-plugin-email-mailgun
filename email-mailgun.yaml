@@ -5,3 +5,4 @@ password:
 api_key:
 domain:
 region: us
+signing_key:
