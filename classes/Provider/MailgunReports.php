@@ -96,7 +96,12 @@ final class MailgunReports implements DeliveryReports
      * Mailgun is passing that on. But Mailgun also reports a `failed` for a
      * message it never sent, because the address was already on one of its own
      * suppression lists, and its `reason` for that begins `suppress-`. Nothing
-     * was handed to a receiving server, so that one is {@see Event::DROPPED}.
+     * was handed to a receiving server, so that one is {@see Event::DROPPED},
+     * and its `hard` is always true: the prefix means Mailgun refused the
+     * address rather than the message, so the next message to it is refused
+     * too and a store may treat that as permanent. Mailgun has nothing that is
+     * the other half — a message it will not send for a reason of its own, a
+     * quota or a virus, is refused by the API call rather than reported later.
      *
      * @var array<string, string>
      */
@@ -207,6 +212,12 @@ final class MailgunReports implements DeliveryReports
             // was handed to a receiving server.
             if (str_starts_with(strtolower(trim((string)($data['reason'] ?? ''))), self::SUPPRESS)) {
                 $type = Event::DROPPED;
+                // Always the address. `suppress-bounce`, `suppress-complaint`
+                // and `suppress-unsubscribe` are the three lists Mailgun keeps
+                // per address, and the prefix is the whole meaning: Mailgun is
+                // saying it already holds this address and will refuse the next
+                // message to it as well.
+                $hard = true;
             } else {
                 $hard = strtolower(trim((string)($data['severity'] ?? ''))) === 'permanent';
             }

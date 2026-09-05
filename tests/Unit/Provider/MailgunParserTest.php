@@ -67,10 +67,11 @@ final class MailgunParserTest extends TestCase
 
         // A `failed` Mailgun never attempted: the address was already on one of
         // its own suppression lists, so nothing was handed to a receiving
-        // server and this is a drop rather than a bounce.
+        // server and this is a drop rather than a bounce. `hard` is true
+        // because the prefix means the address rather than the message.
         yield 'suppressed before it was sent' => ['failed-suppressed', [
             'type' => Event::DROPPED,
-            'hard' => null,
+            'hard' => true,
             'email' => 'previously-bounced@sample.mailgun.com',
             'reason' => 'Not delivering to previously bounced address — suppress-bounce',
         ]];
@@ -248,6 +249,37 @@ final class MailgunParserTest extends TestCase
 
         self::assertSame('20260205213049.8e3a7bf607f78309@sample.mailgun.com', $event->messageId);
         self::assertSame('q7DMpbLFRKW1QuiLC9XV4Q', $event->providerId);
+    }
+
+    /**
+     * Every `suppress-` reason is the address, not the message.
+     *
+     * The prefix is the whole meaning: Mailgun keeps three lists per address
+     * and is saying this one is on one of them, so the next message to it is
+     * refused as well. Mailgun has nothing that is the other half — a message
+     * it will not send for a reason of its own is refused by the API call
+     * rather than reported here — so there is no reason string that makes a
+     * `suppress-` drop anything but permanent.
+     */
+    public function testEverySuppressReasonIsTheAddressRatherThanTheMessage(): void
+    {
+        $body = json_decode(self::body('failed-suppressed'), true);
+
+        foreach (['suppress-bounce', 'suppress-complaint', 'suppress-unsubscribe'] as $reason) {
+            $body['event-data']['reason'] = $reason;
+
+            $event = self::reports()->parse(new WebhookRequest(
+                'POST',
+                '/webhook/mailgun',
+                [],
+                ['content-type' => 'application/json'],
+                (string)json_encode($body)
+            ))->events[0];
+
+            self::assertSame(Event::DROPPED, $event->type, $reason);
+            self::assertTrue($event->hard, $reason);
+            self::assertTrue($event->isRefusedAddress(), $reason);
+        }
     }
 
     // ------------------------------------------------------------- internals
