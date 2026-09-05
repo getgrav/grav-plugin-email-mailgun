@@ -7,6 +7,7 @@ namespace Grav\Plugin\EmailMailgun\Provider;
 use Grav\Plugin\Email\Providers\DeliveryReports;
 use Grav\Plugin\Email\Providers\Event;
 use Grav\Plugin\Email\Providers\Payload;
+use Grav\Plugin\Email\Providers\SendHeader;
 use Grav\Plugin\Email\Providers\Verdict;
 use Grav\Plugin\Email\Providers\WebhookRequest;
 
@@ -48,8 +49,15 @@ use Grav\Plugin\Email\Providers\WebhookRequest;
  * `message-id` — no `to`, no `subject` — so it is not merely the best handle
  * there, it is the only one.
  *
- * Custom headers do not come back at all; {@see SendVariables} says why, and
- * reads the user variables that are Mailgun's own way round it.
+ * Custom headers do not come back at all. Mailgun's event schema exposes four
+ * header fields — `to`, `from`, `subject` and `message-id` — and drops every
+ * other one, so a custom `X-` header is invisible here however carefully it was
+ * set. Their own mechanism for this is user variables: `v:name=value` over the
+ * API, or an `X-Mailgun-Variables` JSON header over SMTP, arriving back as
+ * `event-data.user-variables`. That is read as a fallback for a store that has
+ * wired one up, and it is not something this plugin sets — correlation works
+ * over `Message-ID` already, and Mailgun's own documentation warns twice that
+ * user variables are visible to the recipient in the delivered message.
  *
  * ## The signature
  *
@@ -71,9 +79,6 @@ use Grav\Plugin\Email\Providers\WebhookRequest;
  */
 final class MailgunReports implements DeliveryReports
 {
-    /** The header a store stamps its send id into on the way out. */
-    public const SEND_HEADER = 'X-KahunaCart-Send';
-
     /** How stale a signed timestamp may be. Mailgun asks for latitude here. */
     public const TOLERANCE = 900;
 
@@ -86,6 +91,13 @@ final class MailgunReports implements DeliveryReports
      * `accepted`, `unsubscribed`, `delivery_delayed` and the rest are absent on
      * purpose: an event nobody acts on is skipped with a note, never refused.
      *
+     * `failed` is two different things and {@see SUPPRESS} is what tells them
+     * apart. Usually it is a bounce: a receiving server refused the message and
+     * Mailgun is passing that on. But Mailgun also reports a `failed` for a
+     * message it never sent, because the address was already on one of its own
+     * suppression lists, and its `reason` for that begins `suppress-`. Nothing
+     * was handed to a receiving server, so that one is {@see Event::DROPPED}.
+     *
      * @var array<string, string>
      */
     public const TYPES = [
@@ -95,6 +107,16 @@ final class MailgunReports implements DeliveryReports
         'opened' => Event::OPENED,
         'clicked' => Event::CLICKED,
     ];
+
+    /**
+     * The prefix on the `reason` of a `failed` Mailgun never tried to send.
+     *
+     * `suppress-bounce`, `suppress-complaint` and `suppress-unsubscribe` are
+     * the three, and they mean the address was on Mailgun's own list before the
+     * send. A store reading one of these is being told what Mailgun already
+     * knew rather than what a receiving server has just decided.
+     */
+    public const SUPPRESS = 'suppress-';
 
     /** @var (callable(): int) */
     private $clock;
@@ -108,7 +130,7 @@ final class MailgunReports implements DeliveryReports
     /** @return list<string> */
     public function events(): array
     {
-        return array_values(array_unique(array_values(self::TYPES)));
+        return array_values(array_unique([...array_values(self::TYPES), Event::DROPPED]));
     }
 
     /** @return list<string> */
@@ -119,7 +141,7 @@ final class MailgunReports implements DeliveryReports
 
     public function sendHeader(): string
     {
-        return self::SEND_HEADER;
+        return SendHeader::name();
     }
 
     public function verify(WebhookRequest $request, array $config): Verdict
@@ -180,7 +202,14 @@ final class MailgunReports implements DeliveryReports
 
         $hard = null;
         if ($type === Event::BOUNCED) {
-            $hard = strtolower(trim((string)($data['severity'] ?? ''))) === 'permanent';
+            // A `failed` Mailgun never attempted, because the address was
+            // already on one of its suppression lists. Not a bounce: nothing
+            // was handed to a receiving server.
+            if (str_starts_with(strtolower(trim((string)($data['reason'] ?? ''))), self::SUPPRESS)) {
+                $type = Event::DROPPED;
+            } else {
+                $hard = strtolower(trim((string)($data['severity'] ?? ''))) === 'permanent';
+            }
         }
 
         $message = \is_array($data['message'] ?? null) ? $data['message'] : [];
@@ -194,7 +223,7 @@ final class MailgunReports implements DeliveryReports
             (string)($data['id'] ?? ''),
             Moment::parse($data['timestamp'] ?? null) ?? 0,
             self::reason($data, $type),
-            SendVariables::idIn($data['user-variables'] ?? null, self::SEND_HEADER),
+            SendHeader::idIn($data['user-variables'] ?? null),
         )]);
     }
 

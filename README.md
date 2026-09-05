@@ -49,7 +49,7 @@ Also set your `from`/`to` addresses there as usual.
 
 ## Delivery reports
 
-Mailgun can tell your site what happened to a message after it left — delivered, bounced, marked as spam, opened, clicked. This plugin knows how to read that, so anything on the site that records deliveries (the KahunaCart newsletter add-on, for one) gets it without carrying any Mailgun code of its own. It needs the Email plugin 5.0.9 or newer; on an older one nothing here does any harm, it simply does nothing.
+Mailgun can tell your site what happened to a message after it left — delivered, bounced, marked as spam, opened, clicked, or refused before it went anywhere because the address was already on one of Mailgun's own suppression lists. This plugin knows how to read that, so anything on the site that records deliveries (the KahunaCart newsletter add-on, for one) gets it without carrying any Mailgun code of its own. It needs the Email plugin 5.0.9 or newer; on an older one nothing here does any harm, it simply does nothing.
 
 Once it is set up, a store stops guessing. Addresses that hard bounce get suppressed instead of being mailed for another year, spam complaints show up as complaints, and open and click figures come from Mailgun rather than from nowhere.
 

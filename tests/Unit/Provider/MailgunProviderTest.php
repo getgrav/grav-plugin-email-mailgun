@@ -7,6 +7,7 @@ namespace Grav\Plugin\EmailMailgun\Tests\Unit\Provider;
 use Grav\Plugin\Email\Providers\Event;
 use Grav\Plugin\Email\Providers\Provider;
 use Grav\Plugin\Email\Providers\ProviderRegistry;
+use Grav\Plugin\Email\Providers\SendHeader;
 use Grav\Plugin\EmailMailgun\Provider\MailgunApi;
 use Grav\Plugin\EmailMailgun\Provider\MailgunProvider;
 use Grav\Plugin\EmailMailgun\Provider\MailgunReports;
@@ -63,14 +64,15 @@ final class MailgunProviderTest extends TestCase
         self::assertStringContainsString('nothing setting up', $capabilities->echoNote);
     }
 
-    public function testItReportsTheFiveEventsMailgunSends(): void
+    public function testItReportsTheSixEventsMailgunSends(): void
     {
         $reports = (new MailgunProvider())->reports();
 
         self::assertNotNull($reports);
         self::assertSame(
-            [Event::DELIVERED, Event::BOUNCED, Event::COMPLAINED, Event::OPENED, Event::CLICKED],
-            $reports->events()
+            [Event::DELIVERED, Event::BOUNCED, Event::COMPLAINED, Event::OPENED, Event::CLICKED, Event::DROPPED],
+            $reports->events(),
+            'dropped is a failed Mailgun never attempted, and it has no event name of its own'
         );
 
         foreach ($reports->events() as $event) {
@@ -78,8 +80,8 @@ final class MailgunProviderTest extends TestCase
         }
 
         self::assertSame(['signing_key'], $reports->verificationKeys());
-        self::assertSame('X-KahunaCart-Send', $reports->sendHeader());
-        self::assertSame(MailgunReports::SEND_HEADER, $reports->sendHeader());
+        self::assertSame('X-Grav-Send-Id', $reports->sendHeader());
+        self::assertSame(SendHeader::name(), $reports->sendHeader(), 'the Email plugin names it');
     }
 
     /**

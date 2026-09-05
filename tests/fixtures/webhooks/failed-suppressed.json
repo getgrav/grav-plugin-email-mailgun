@@ -1,0 +1,70 @@
+{
+  "signature": {
+    "token": "e0b5477167110d68991efc6b9f89f0a11066af27834600e123",
+    "timestamp": "1770920772",
+    "signature": "12d99f5a15355c180971bed7494d578b093c958f57766f3fe750761baed12345"
+  },
+  "event-data": {
+    "event": "failed",
+    "id": "7pKLtcrLQuKTdp-Ia2Xr9z",
+    "timestamp": 1770918175.5923693,
+    "flags": {
+      "is-authenticated": true,
+      "is-routed": false,
+      "is-big": false,
+      "is-system-test": false,
+      "is-test-mode": false
+    },
+    "message": {
+      "attachments": [],
+      "headers": {
+        "message-id": "20260212174255.58bbb7ce85a423e5@mailgun.com",
+        "from": "Sample Sender <sender@sample.mailgun.com>",
+        "to": "previously-bounced@sample.mailgun.com",
+        "subject": "Sample webhook payload"
+      },
+      "size": 384
+    },
+    "storage": {
+      "key": "XXXXAQVV4uE1s5YYj9ZJq7Ge6flueUXXXX",
+      "url": "https://storage-us-east4.api.mailgun.net/v3/domains/sample.mailgun.com/messages/BAABAAfjqLGlFIjZf6pPUoM8bTIKzkQ5Zg"
+    },
+    "log-level": "error",
+    "recipient": "previously-bounced@sample.mailgun.com",
+    "recipient-domain": "sample.mailgun.com",
+    "primary-dkim": "new._domainkey.sample.mailgun.com",
+    "tags": [
+      "webhook_payload"
+    ],
+    "reason": "suppress-bounce",
+    "recipient-provider": "Other",
+    "severity": "permanent",
+    "campaigns": [],
+    "account": {
+      "id": "1234567890303a4bd1f33898"
+    },
+    "delivery-status": {
+      "attempt-no": 1,
+      "code": 605,
+      "message": "Not delivering to previously bounced address",
+      "description": "Not delivering to previously bounced address",
+      "session-seconds": 0.0,
+      "retry-seconds": null,
+      "enhanced-code": null,
+      "mx-host": null,
+      "certificate-verified": true,
+      "tls": true,
+      "utf8": true
+    },
+    "domain": {
+      "name": "sample.mailgun.com"
+    },
+    "envelope": {
+      "sender": "sender@sample.mailgun.com",
+      "targets": "badrecipient@sample.mailgun.com",
+      "transport": "smtp",
+      "sending-ip": "161.38.194.10"
+    },
+    "user-variables": []
+  }
+}

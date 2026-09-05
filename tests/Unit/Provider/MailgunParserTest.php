@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Grav\Plugin\EmailMailgun\Tests\Unit\Provider;
 
 use Grav\Plugin\Email\Providers\Event;
+use Grav\Plugin\Email\Providers\SendHeader;
 use Grav\Plugin\Email\Providers\WebhookRequest;
 use Grav\Plugin\EmailMailgun\Provider\MailgunReports;
 use PHPUnit\Framework\TestCase;
@@ -62,6 +63,16 @@ final class MailgunParserTest extends TestCase
         yield 'temporary failure' => ['failed-temporary', [
             'type' => Event::BOUNCED,
             'hard' => false,
+        ]];
+
+        // A `failed` Mailgun never attempted: the address was already on one of
+        // its own suppression lists, so nothing was handed to a receiving
+        // server and this is a drop rather than a bounce.
+        yield 'suppressed before it was sent' => ['failed-suppressed', [
+            'type' => Event::DROPPED,
+            'hard' => null,
+            'email' => 'previously-bounced@sample.mailgun.com',
+            'reason' => 'Not delivering to previously bounced address — suppress-bounce',
         ]];
 
         yield 'complaint' => ['complained', [
@@ -190,7 +201,7 @@ final class MailgunParserTest extends TestCase
      */
     public function testASendIdIsReadOutOfTheUserVariables(): void
     {
-        foreach (['X-KahunaCart-Send', 'x-kahunacart-send'] as $spelling) {
+        foreach ([SendHeader::name(), strtolower(SendHeader::name())] as $spelling) {
             $body = (string)json_encode([
                 'signature' => ['timestamp' => '1737000000', 'token' => 't', 'signature' => 's'],
                 'event-data' => [
