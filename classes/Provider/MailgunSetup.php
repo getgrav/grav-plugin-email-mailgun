@@ -39,6 +39,15 @@ use Grav\Plugin\Email\Providers\WebhookSetup;
  * Mailgun caps a type at three URLs, and a type already holding three is a
  * refusal naming that type rather than a silent failure.
  *
+ * ## Pressing it after the secret changed
+ *
+ * A new secret is a new address, so the URL Mailgun holds is posting at one
+ * that answers 404 and the store looks as though nothing is registered. It is
+ * still recognisably this store's: it sits under the same endpoint and only the
+ * secret on the end is different. So on each event type it is replaced by the
+ * new address rather than joined by it, which is also what keeps the cap of
+ * three from being spent on an address nothing answers.
+ *
  * ## The signing key
  *
  * Read back from `GET /v5/accounts/http_signing_key` and handed to the closure
@@ -123,6 +132,7 @@ final class MailgunSetup implements WebhookSetup
         }
 
         $added = 0;
+        $repointed = 0;
         foreach ($wanted as $type) {
             $answer = $this->api->pointAt(
                 $apiKey,
@@ -138,9 +148,10 @@ final class MailgunSetup implements WebhookSetup
             }
 
             $added += $answer['changed'] ? 1 : 0;
+            $repointed += $answer['repointed'] ? 1 : 0;
         }
 
-        return SetupResult::ok($this->done($added, \count($wanted), $domain, $apiKey, $region));
+        return SetupResult::ok($this->done($added, $repointed, \count($wanted), $domain, $apiKey, $region));
     }
 
     // ------------------------------------------------------------- internals
@@ -176,7 +187,7 @@ final class MailgunSetup implements WebhookSetup
      * It says what changed rather than "done", because a button that says
      * "done" when it did nothing is a button nobody trusts the second time.
      */
-    private function done(int $added, int $total, string $domain, string $apiKey, string $region): string
+    private function done(int $added, int $repointed, int $total, string $domain, string $apiKey, string $region): string
     {
         if ($added === 0) {
             $webhooks = sprintf('All %d Mailgun webhooks for %s were already pointed here.', $total, $domain);
@@ -189,6 +200,11 @@ final class MailgunSetup implements WebhookSetup
                 $total,
                 $domain
             );
+        }
+
+        if ($repointed > 0) {
+            $webhooks = 'Mailgun had this store\'s webhook registered with an older secret. It now points at this '
+                . 'address. ' . $webhooks;
         }
 
         if ($this->keeper === null) {

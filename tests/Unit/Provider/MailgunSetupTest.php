@@ -108,6 +108,72 @@ final class MailgunSetupTest extends TestCase
         );
     }
 
+    /**
+     * The store's own address under an older secret is replaced rather than
+     * joined, so the cap of three per type is not spent on an address that
+     * answers 404.
+     */
+    public function testAnAddressOnAnOlderSecretIsReplacedRatherThanJoined(): void
+    {
+        $old = 'https://shop.example.com/newsletter/webhook/mailgun/the-old-secret';
+        $other = 'https://someone-elses-thing.example.net/hook';
+
+        $http = (new FakeHttp())
+            ->queue('GET', self::WEBHOOKS, 200, ['webhooks' => [
+                'delivered' => ['urls' => [$old]],
+                'permanent_fail' => ['urls' => [$other, $old]],
+                // Three already, one of them ours: replacing keeps it at three
+                // rather than refusing the type.
+                'temporary_fail' => ['urls' => ['https://a.example/1', $old, 'https://b.example/2']],
+                'complained' => ['urls' => [$old]],
+                'opened' => ['urls' => [$old]],
+                'clicked' => ['urls' => [$old]],
+            ]])
+            ->queue('GET', self::KEY_PATH, 200, ['http_signing_key' => 'the-signing-key']);
+
+        foreach (['delivered', 'permanent_fail', 'temporary_fail', 'complained', 'opened', 'clicked'] as $type) {
+            $http->queue('PUT', self::WEBHOOKS . '/' . $type, 200, ['message' => 'Webhook has been updated']);
+        }
+
+        $result = $this->button($http)->create(self::URL, self::EVENTS, self::config());
+
+        self::assertTrue($result->ok, $result->message);
+        self::assertStringContainsString('older secret', $result->message);
+        self::assertStringContainsString('All 6 Mailgun webhooks', $result->message);
+
+        $puts = [];
+        foreach ($http->calls as $call) {
+            self::assertNotSame('POST', $call['method'], 'nothing should have been created');
+
+            if ($call['method'] === 'PUT') {
+                $puts[(string)parse_url($call['url'], \PHP_URL_PATH)] = $call['fields']['url'];
+            }
+        }
+
+        self::assertSame([self::URL], $puts[self::WEBHOOKS . '/delivered']);
+        self::assertSame([$other, self::URL], $puts[self::WEBHOOKS . '/permanent_fail'], 'somebody else\'s stays');
+        self::assertSame(
+            ['https://a.example/1', 'https://b.example/2', self::URL],
+            $puts[self::WEBHOOKS . '/temporary_fail'],
+            'a type at the cap of three still has room once the dead address goes'
+        );
+    }
+
+    /** A refused replacement comes back in Mailgun's own words. */
+    public function testARefusedRepointingIsAPlainSentence(): void
+    {
+        $old = 'https://shop.example.com/newsletter/webhook/mailgun/the-old-secret';
+
+        $http = (new FakeHttp())
+            ->queue('GET', self::WEBHOOKS, 200, ['webhooks' => ['delivered' => ['urls' => [$old]]]])
+            ->queue('PUT', self::WEBHOOKS . '/delivered', 400, ['message' => 'url is not a valid URL']);
+
+        $result = $this->button($http)->create(self::URL, self::EVENTS, self::config());
+
+        self::assertFalse($result->ok);
+        self::assertStringContainsString('url is not a valid URL', $result->message);
+    }
+
     public function testNothingChangedIsSaidPlainlyRatherThanCalledDone(): void
     {
         $all = [];

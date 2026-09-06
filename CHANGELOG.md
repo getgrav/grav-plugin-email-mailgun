@@ -1,3 +1,9 @@
+# v1.1.1
+## 09/05/2026
+
+1. [](#bugfix)
+    * **Set up now repairs a webhook whose address has changed.** A store that generated a new secret, or lost its settings, was told nothing was registered while Mailgun still held the old address on every event type, and pressing Set up added the new address beside the dead one — on a type already holding the three URLs Mailgun allows, it could not add anything at all. Set up now recognises the store's own address by its endpoint and replaces it on each event type, leaving anybody else's webhook where it is.
+
 # v1.1.0
 ## 09/05/2026
 
