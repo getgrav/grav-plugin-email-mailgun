@@ -53,7 +53,7 @@ Mailgun can tell your site what happened to a message after it left — delivere
 
 Once it is set up, a store stops guessing. Addresses that hard bounce get suppressed instead of being mailed for another year, spam complaints show up as complaints, and open and click figures come from Mailgun rather than from nowhere.
 
-**The one button.** Whatever is receiving the events shows a webhook address and a **Set up** button. Pressing it reads what is already registered on your sending domain, adds the address to the six event types this needs, leaves any other webhook you have alone, and reads the HTTP webhook signing key back out of your account and saves it here. Pressing it twice is safe — it only adds what is missing.
+**The one button.** Whatever is receiving the events shows a webhook address and a **Set up** button. Pressing it reads what is already registered on your sending domain, adds the address to the six event types this needs, leaves any other webhook you have alone, and reads the HTTP webhook signing key back out of your account and saves it here. Pressing it twice is safe — it only adds what is missing. If the address has changed since — a new secret, or a store that lost its settings — the old one is replaced rather than joined, so the three URLs Mailgun allows per event type are not spent on an address nothing answers any more.
 
 That button needs the API key in this plugin's settings to be an **account key with permission to manage webhooks**. A domain sending key can send mail and cannot do either of those things.
 

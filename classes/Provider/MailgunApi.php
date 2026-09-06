@@ -89,8 +89,14 @@ final class MailgunApi
      * already has one, so the existing list decides which call is made. That is
      * what makes the setup button safe to press twice.
      *
+     * A URL already on the type that sits under this store's endpoint but is
+     * not the address being registered is this store's own from before the
+     * secret changed, and it is replaced rather than joined. Nobody else's
+     * address can be under that endpoint, the old one answers 404, and the cap
+     * of three is too small to spend a slot on a dead address.
+     *
      * @param list<string> $existing the URLs already on this event type
-     * @return array{ok: bool, message: string, changed: bool}
+     * @return array{ok: bool, message: string, changed: bool, repointed: bool}
      */
     public function pointAt(
         string $apiKey,
@@ -101,7 +107,21 @@ final class MailgunApi
         array $existing,
     ): array {
         if (\in_array($url, $existing, true)) {
-            return ['ok' => true, 'message' => '', 'changed' => false];
+            return ['ok' => true, 'message' => '', 'changed' => false, 'repointed' => false];
+        }
+
+        $endpoint = self::endpointOf($url);
+        $others = [];
+        $repointed = false;
+
+        foreach ($existing as $registered) {
+            if ($endpoint !== '' && str_starts_with($registered, $endpoint)) {
+                $repointed = true;
+
+                continue;
+            }
+
+            $others[] = $registered;
         }
 
         $base = self::base($region) . '/v3/domains/' . rawurlencode($domain) . '/webhooks';
@@ -109,10 +129,13 @@ final class MailgunApi
         if ($existing === []) {
             $answer = $this->http->postForm($base, ['id' => $type, 'url' => $url], self::auth($apiKey));
         } else {
-            if (\count($existing) >= 3) {
+            // The cap only bites when this is a new address beside somebody
+            // else's. Replacing this store's own leaves the count where it was.
+            if (!$repointed && \count($existing) >= 3) {
                 return [
                     'ok' => false,
                     'changed' => false,
+                    'repointed' => false,
                     'message' => sprintf(
                         'Mailgun allows three webhook URLs per event type and "%s" already has three. '
                         . 'Remove one in Mailgun under Sending, Webhooks, then press the button again.',
@@ -123,7 +146,7 @@ final class MailgunApi
 
             $answer = $this->http->putForm(
                 $base . '/' . rawurlencode($type),
-                ['url' => array_values(array_merge($existing, [$url]))],
+                ['url' => array_values(array_merge($others, [$url]))],
                 self::auth($apiKey)
             );
         }
@@ -131,8 +154,19 @@ final class MailgunApi
         $refusal = self::refusal($answer);
 
         return $refusal === null
-            ? ['ok' => true, 'message' => '', 'changed' => true]
-            : ['ok' => false, 'message' => $refusal, 'changed' => false];
+            ? ['ok' => true, 'message' => '', 'changed' => true, 'repointed' => $repointed]
+            : ['ok' => false, 'message' => $refusal, 'changed' => false, 'repointed' => false];
+    }
+
+    /**
+     * The address without its secret: everything up to and including the last
+     * slash. Two addresses that share it belong to the same store.
+     */
+    private static function endpointOf(string $url): string
+    {
+        $cut = strrpos($url, '/');
+
+        return $cut === false || $cut < \strlen('https://x/') ? '' : substr($url, 0, $cut + 1);
     }
 
     /**
