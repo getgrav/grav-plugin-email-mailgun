@@ -305,8 +305,15 @@ final class MailgunApi
         $said = trim((string)(($answer['body'] ?? [])['message'] ?? ''));
 
         if ($answer['status'] === 401) {
-            return 'Mailgun refused the API key. It has to be an account key with permission to manage '
-                . 'webhooks, and it has to belong to the same region the plugin is sending through.';
+            // Worth spelling out, because the key that fails here is usually a
+            // working one: a domain sending key sends mail perfectly well and
+            // can even read this account's webhooks back, and Mailgun offers
+            // one on the domain screen where somebody setting up a store is
+            // already standing. It just cannot create a webhook.
+            return 'Mailgun refused the API key for this. A domain sending key can send mail but cannot '
+                . 'create webhooks — this needs an account API key, from API Keys in your Mailgun profile '
+                . 'menu, on the same region the plugin sends through.'
+                . ($said !== '' ? ' Mailgun said: ' . $said : '');
         }
 
         return $said !== ''
