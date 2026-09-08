@@ -99,7 +99,7 @@ final class MailgunSetup implements WebhookSetup
     {
         return 'The API key has to be an account key with permission to manage webhooks — a domain sending key '
             . 'cannot create them. Reading the webhook signing key back needs an account key as well. Both are '
-            . 'under your profile menu in Mailgun, on the API Security page.';
+            . 'in Mailgun under Send, Webhooks, on the Configuration tab.';
     }
 
     public function create(string $url, array $events, array $config): SetupResult
@@ -216,7 +216,7 @@ final class MailgunSetup implements WebhookSetup
 
         if (!$key['ok']) {
             return $webhooks . ' The webhook signing key could not be read, so paste it here by hand: it is in '
-                . 'Mailgun under your profile menu, on the API Security page. (' . $key['message'] . ')';
+                . 'Mailgun under Send, Webhooks, on the Configuration tab. (' . $key['message'] . ')';
         }
 
         ($this->keeper)($key['key']);

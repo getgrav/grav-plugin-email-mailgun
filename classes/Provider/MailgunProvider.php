@@ -54,7 +54,7 @@ final class MailgunProvider implements Provider
     public const INSTRUCTIONS = 'In Mailgun, open Sending, then Webhooks, and pick the sending domain this store '
         . 'uses. Add the store\'s webhook address once for each of Delivered Messages, Permanent Failure, '
         . 'Temporary Failure, Spam Complaints, Opens and Clicks. Then find the HTTP webhook signing key under your '
-        . 'profile menu, on the API Security page — it is a different string from the sending API key — and paste '
+        . 'Webhooks screen, on the Configuration tab — it is a different string from the sending API key — and paste '
         . 'it into the Webhook Signing Key field in this plugin\'s settings. The Set up button does all of that for '
         . 'you if the API key here is an account key rather than a domain sending key.';
 

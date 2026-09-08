@@ -273,7 +273,7 @@ final class MailgunSetupTest extends TestCase
         self::assertTrue($result->ok, 'the webhooks were made, which is what the button was for');
         self::assertSame([], $kept);
         self::assertStringContainsString('paste it here by hand', $result->message);
-        self::assertStringContainsString('API Security', $result->message);
+        self::assertStringContainsString('Configuration tab', $result->message);
     }
 
     /** An event type already holding Mailgun's three URLs is a plain refusal. */
@@ -347,7 +347,7 @@ final class MailgunSetupTest extends TestCase
 
         self::assertStringContainsString('account key', $said);
         self::assertStringContainsString('domain sending key', $said);
-        self::assertStringContainsString('API Security', $said);
+        self::assertStringContainsString('Configuration tab', $said);
     }
 
     // ------------------------------------------------------------- internals
