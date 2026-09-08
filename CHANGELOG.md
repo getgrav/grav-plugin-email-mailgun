@@ -1,3 +1,9 @@
+# v1.1.2
+## 09/08/2026
+
+1. [](#bugfix)
+    * **The API key and the sending domain are marked required, and the form says why.** Mailgun's API address contains the sending domain — `/v3/<domain>/messages` — so unlike every other provider here a key on its own cannot send anything, and this plugin threw when asked to build a transport without one. Thrown from where it was, that took down every page of the site rather than failing a send; the Email plugin 5.2.0 now catches it, and marking the two fields required stops the store reaching that state at all. Both fields carry help text: the key is the sending key rather than the public validation key, and the domain is written exactly as Mailgun lists it
+
 # v1.1.1
 ## 09/05/2026
 

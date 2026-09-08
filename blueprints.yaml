@@ -1,7 +1,7 @@
 name: Email Mailgun
 slug: email-mailgun
 type: plugin
-version: 1.1.1
+version: 1.1.2
 description: Mailgun integration for new Email plugin
 icon: envelope
 author:
@@ -47,11 +47,18 @@ form:
 
     api_key:
       type: text
-      label: API Key (for API Only)
+      label: API Key
+      help: Your Mailgun sending key, not the public validation key.
+      validate:
+        required: true
 
     domain:
       type: text
-      label: Domain (for API Only)
+      label: Domain
+      placeholder: mg.example.com
+      help: The sending domain exactly as Mailgun lists it. Mailgun's API address contains the domain, so a key on its own cannot send. SMTP users can put their sending domain here too — it is the one in the postmaster@ username.
+      validate:
+        required: true
 
     region:
       type: select
