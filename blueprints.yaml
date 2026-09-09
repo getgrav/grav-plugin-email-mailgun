@@ -1,7 +1,7 @@
 name: Email Mailgun
 slug: email-mailgun
 type: plugin
-version: 1.1.1
+version: 1.1.2
 description: Mailgun integration for new Email plugin
 icon: envelope
 author:
@@ -46,12 +46,19 @@ form:
 
 
     api_key:
-      type: text
-      label: API Key (for API Only)
+      type: password
+      label: API Key
+      help: "An account API key, from API Keys in your Mailgun profile menu. A domain sending key works for sending, but cannot create the webhooks that bring delivery reports back, and cannot read the signing key below — so if anything on this site reads Mailgun's reports, use an account key."
+      validate:
+        required: true
 
     domain:
       type: text
-      label: Domain (for API Only)
+      label: Domain
+      placeholder: mg.example.com
+      help: The sending domain exactly as Mailgun lists it. Mailgun's API address contains the domain, so a key on its own cannot send. SMTP users can put their sending domain here too — it is the one in the postmaster@ username.
+      validate:
+        required: true
 
     region:
       type: select
@@ -68,10 +75,10 @@ form:
       label: Username (for SMTP Only)
 
     password:
-      type: text
+      type: password
       label: Password (for SMTP Only)
 
     signing_key:
       type: password
       label: Webhook Signing Key
-      help: "Only needed if something on this site reads Mailgun's delivery reports. It is a different string from the API key above: find it in Mailgun under your profile menu, on the API Security page, as the HTTP webhook signing key. Every webhook Mailgun posts is signed with it, and without it the events cannot be told apart from anybody else's. Leave it empty and it will be filled in for you the first time a webhook is set up from here with an account key."
+      help: "Only needed if something on this site reads Mailgun's delivery reports. It is a different string from the API key above: find it in Mailgun under Send, Webhooks, on the Configuration tab, as the HTTP signing key. Every webhook Mailgun posts is signed with it, and without it the events cannot be told apart from anybody else's. Leave it empty and it will be filled in for you the first time a webhook is set up from here with an account key."

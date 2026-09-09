@@ -199,8 +199,34 @@ final class MailgunSetupTest extends TestCase
         $result = $this->button($http)->create(self::URL, self::EVENTS, self::config());
 
         self::assertFalse($result->ok);
-        self::assertStringContainsString('account key', $result->message);
-        self::assertStringContainsString('manage webhooks', $result->message);
+        self::assertStringContainsString('account API key', $result->message);
+        self::assertStringContainsString('Invalid private key', $result->message);
+    }
+
+    /**
+     * The refusal a real store actually hits, and the one every test here
+     * missed: a domain sending key.
+     *
+     * It is not a broken key. It sends mail perfectly well, it is the key
+     * Mailgun offers on the domain screen where somebody setting up a store is
+     * already standing, and it reads this account's webhooks back with a 200 —
+     * so every check that stops at the listing call says the key is fine. Only
+     * the create is refused. The message has to name the distinction, because
+     * "Mailgun refused the API key" sends somebody off to re-copy a key that
+     * was never mistyped.
+     */
+    public function testASendingKeyThatCanReadWebhooksButNotCreateThemSaysSo(): void
+    {
+        $http = (new FakeHttp())
+            ->queue('GET', self::WEBHOOKS, 200, ['webhooks' => []])
+            ->queue('POST', self::WEBHOOKS, 401, ['message' => 'API key does not have sufficient permissions to perform this action']);
+
+        $result = $this->button($http)->create(self::URL, self::EVENTS, self::config());
+
+        self::assertFalse($result->ok);
+        self::assertStringContainsString('sending key', $result->message);
+        self::assertStringContainsString('account API key', $result->message);
+        self::assertStringContainsString('sufficient permissions', $result->message);
     }
 
     /** A domain that is not on this account, in Mailgun's own words. */
@@ -247,7 +273,7 @@ final class MailgunSetupTest extends TestCase
         self::assertTrue($result->ok, 'the webhooks were made, which is what the button was for');
         self::assertSame([], $kept);
         self::assertStringContainsString('paste it here by hand', $result->message);
-        self::assertStringContainsString('API Security', $result->message);
+        self::assertStringContainsString('Configuration tab', $result->message);
     }
 
     /** An event type already holding Mailgun's three URLs is a plain refusal. */
@@ -321,7 +347,7 @@ final class MailgunSetupTest extends TestCase
 
         self::assertStringContainsString('account key', $said);
         self::assertStringContainsString('domain sending key', $said);
-        self::assertStringContainsString('API Security', $said);
+        self::assertStringContainsString('Configuration tab', $said);
     }
 
     // ------------------------------------------------------------- internals

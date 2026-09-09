@@ -1,3 +1,12 @@
+# v1.1.2
+## 09/08/2026
+
+1. [](#bugfix)
+    * **The API key and the SMTP password are no longer shown in the clear.** Every credential field in this plugin was typed `text`, so an account's sending credentials were rendered as readable text on the settings page and handed to the browser unmasked by the API. They are `password` fields now.
+    * **The signing key is where Mailgun keeps it now.** Every mention of it — the settings help, the Set up messages, the by-hand instructions on the card, the README — sent people to the API Security page under the profile menu, and Mailgun has moved it to Send, Webhooks, on the Configuration tab, where it is called the HTTP signing key. Sending somebody to a page that no longer has the thing on it is worse than saying nothing, because they go looking for a second key that does not exist
+    * **A domain sending key is told apart from a broken one.** Mailgun offers a sending key on the domain screen, which is where somebody setting a store up is already standing, and it sends mail perfectly well — it just cannot create a webhook, and it cannot read the account's signing key. Pressing Set up with one got "Mailgun refused the API key", which sends a merchant off to re-copy a key that was never mistyped. It now says a sending key cannot create webhooks, that this needs an account API key and where that lives, and it passes on Mailgun's own sentence as well. The key field's help says the same thing before the button is ever pressed. Every test here had missed it because a sending key **reads** the webhook list with a 200 and is only refused on the create — so any check that stopped at the listing call declared the key good
+    * **The API key and the sending domain are marked required, and the form says why.** Mailgun's API address contains the sending domain — `/v3/<domain>/messages` — so unlike every other provider here a key on its own cannot send anything, and this plugin threw when asked to build a transport without one. Thrown from where it was, that took down every page of the site rather than failing a send; the Email plugin 5.2.0 now catches it, and marking the two fields required stops the store reaching that state at all. Both fields carry help text: the key is the sending key rather than the public validation key, and the domain is written exactly as Mailgun lists it
+
 # v1.1.1
 ## 09/05/2026
 

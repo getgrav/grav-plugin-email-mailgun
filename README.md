@@ -57,7 +57,7 @@ Once it is set up, a store stops guessing. Addresses that hard bounce get suppre
 
 That button needs the API key in this plugin's settings to be an **account key with permission to manage webhooks**. A domain sending key can send mail and cannot do either of those things.
 
-**Doing it by hand.** In Mailgun, open **Sending → Webhooks** and pick your sending domain. Add the webhook address once for each of Delivered Messages, Permanent Failure, Temporary Failure, Spam Complaints, Opens and Clicks. Then find the **HTTP webhook signing key** under your profile menu on the **API Security** page — it is a different string from the sending API key, which is the thing people get wrong — and paste it into **Webhook Signing Key** here. Without it, every event Mailgun posts is refused, because there is no way to tell one from anybody else's.
+**Doing it by hand.** In Mailgun, open **Sending → Webhooks** and pick your sending domain. Add the webhook address once for each of Delivered Messages, Permanent Failure, Temporary Failure, Spam Complaints, Opens and Clicks. Then find the **HTTP signing key** under **Send → Webhooks → Configuration** — it is a different string from the sending API key, which is the thing people get wrong — and paste it into **Webhook Signing Key** here. Without it, every event Mailgun posts is refused, because there is no way to tell one from anybody else's.
 
 **What Mailgun does not do.** Its delivery events carry only four of a message's headers, so a custom header put on the message never comes back. Events are tied to the message they came from by `Message-ID` instead, which needs nothing setting up.
 
