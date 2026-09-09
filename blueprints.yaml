@@ -46,7 +46,7 @@ form:
 
 
     api_key:
-      type: text
+      type: password
       label: API Key
       help: "An account API key, from API Keys in your Mailgun profile menu. A domain sending key works for sending, but cannot create the webhooks that bring delivery reports back, and cannot read the signing key below — so if anything on this site reads Mailgun's reports, use an account key."
       validate:
@@ -75,7 +75,7 @@ form:
       label: Username (for SMTP Only)
 
     password:
-      type: text
+      type: password
       label: Password (for SMTP Only)
 
     signing_key:
