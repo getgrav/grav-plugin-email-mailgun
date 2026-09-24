@@ -1,3 +1,11 @@
+# v1.2.0
+## 09/24/2026
+
+1. [](#new)
+    * **Receives mail through Mailgun routes.** With Email 5.3 or later, the provider offers an inbound receiver (`Provider\MailgunInbound`) that the Email plugin's inbound gateway finds on its own, so a helpdesk or any other plugin that reads mail sent to the site can take it from Mailgun. It reads all three things a route can do: a parsed `forward()` (the fields and the `attachment-N` files, never the request body, which PHP leaves empty for a multipart post), a raw forward to a URL ending in `mime` (`body-mime`, read byte for byte), and `store(notify=…)`, which becomes a reference the consumer's worker downloads later with `Accept: message/rfc2822` and the API key, only ever from an https `mailgun.net` address. The route's `recipient` is kept as the envelope recipient so a `support+token@` plus address survives, `stripped-text` is passed on as the provider's stripped text, and Mailgun's spam headers become the spam score and the SPF and DKIM results. Setup steps are in the README and in the receiver's own `instructions()`
+    * **Route posts are signed with the key this plugin already keeps.** The HMAC over `timestamp` and `token` is read from the form fields, with the same `signing_key` and 900-second window as the delivery reports, and each token is accepted once: `Provider\ReplayCache` remembers used tokens in Grav's cache for twice the window, or in any PSR-16 store passed to it
+    * **Nothing changes on an older Email plugin.** The inbound interface only exists from Email 5.3, so `MailgunProvider` gains an `inbound()` method but declares nothing new, and an empty subclass, `MailgunInboundProvider`, declares the interface; the plugin registers the subclass only when the interface is there. `MailgunProvider` is no longer `final` so that subclass can extend it, and `Http\CurlHttp` takes an optional size and time limit for the download
+
 # v1.1.2
 ## 09/08/2026
 

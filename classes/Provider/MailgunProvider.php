@@ -7,6 +7,7 @@ namespace Grav\Plugin\EmailMailgun\Provider;
 use Grav\Plugin\Email\Providers\Capabilities;
 use Grav\Plugin\Email\Providers\DeliveryReports;
 use Grav\Plugin\Email\Providers\DomainFacts;
+use Grav\Plugin\Email\Providers\Inbound\InboundReceiver;
 use Grav\Plugin\Email\Providers\Provider;
 use Grav\Plugin\Email\Providers\WebhookSetup;
 use Grav\Plugin\EmailMailgun\Http\CurlHttp;
@@ -34,10 +35,20 @@ use Grav\Plugin\EmailMailgun\Http\Http;
  * question, and both of those happen behind a closure the caller decides to
  * call.
  *
+ * ## Receiving mail
+ *
+ * {@see inbound()} answers the receiver for Mailgun's route posts, but this
+ * class does not declare the Email plugin's `InboundCapable`: that interface
+ * exists only from Email 5.3, and a class implementing a missing interface is
+ * a fatal error the moment it loads. The empty subclass
+ * {@see MailgunInboundProvider} declares it, and the plugin registers that one
+ * only when the interface is there. Not `final` for that reason only.
+ *
  * @see \Grav\Plugin\EmailMailgun\Provider\MailgunReports for the webhook
  * @see \Grav\Plugin\EmailMailgun\Provider\MailgunSetup   for the button
+ * @see \Grav\Plugin\EmailMailgun\Provider\MailgunInbound for inbound mail
  */
-final class MailgunProvider implements Provider
+class MailgunProvider implements Provider
 {
     /** The engine key this plugin registers on `onEmailEngines`. */
     public const ENGINE = 'mailgun';
@@ -63,6 +74,8 @@ final class MailgunProvider implements Provider
         private readonly array $config = [],
         private readonly ?Http $http = null,
         private readonly ?\Closure $keeper = null,
+        /** Where inbound tokens are remembered; Grav's cache when left out. */
+        private readonly ?ReplayCache $replay = null,
     ) {
     }
 
@@ -153,6 +166,18 @@ final class MailgunProvider implements Provider
     public function instructions(): string
     {
         return self::translate(self::INSTRUCTIONS_KEY, self::INSTRUCTIONS);
+    }
+
+    /**
+     * The receiver for mail a Mailgun route forwards or stores.
+     *
+     * Only reached through {@see MailgunInboundProvider} on Email 5.3 and
+     * later. Naming `InboundReceiver` as the return type loads nothing when
+     * this class loads; PHP only resolves it when the method returns.
+     */
+    public function inbound(): InboundReceiver
+    {
+        return new MailgunInbound($this->config, $this->replay ?? ReplayCache::fromGrav(), $this->http);
     }
 
     // ------------------------------------------------------------- internals
