@@ -1,0 +1,51 @@
+Return-Path: <customer@example.net>
+X-Mailgun-Spf: Pass
+X-Mailgun-Dkim-Check-Result: Pass
+X-Mailgun-Sscore: 0.3
+From: "Ada Lovelace" <customer@example.net>
+To: "Example Support" <support@inbound.example.com>
+Cc: "Charles Babbage" <charles@example.org>
+Reply-To: ada.replies@example.net
+Subject: =?UTF-8?Q?Re:_Caf=C3=A9_order?=
+Date: Tue, 22 Sep 2026 14:05:00 +0000
+Message-Id: <CAF-Reply-002@Mail.Example.net>
+In-Reply-To: <ticket-42.abc@example.com>
+References: <ticket-42.root@example.com> <ticket-42.abc@example.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="mixed-1"
+
+--mixed-1
+Content-Type: multipart/related; boundary="rel-1"
+
+--rel-1
+Content-Type: multipart/alternative; boundary="alt-1"
+
+--alt-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+Thanks, the café invoice is attached.
+
+On Mon, Example Support wrote:
+> Could you send the invoice?
+--alt-1
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<p>Thanks, the café invoice is attached.</p><img src="cid:logo@example.net">
+--alt-1--
+--rel-1
+Content-Type: image/png
+Content-Transfer-Encoding: base64
+Content-ID: <logo@example.net>
+Content-Disposition: inline; filename="logo.png"
+
+iVBORw0KGgo=
+--rel-1--
+--mixed-1
+Content-Type: application/pdf; name="invoice.pdf"
+Content-Disposition: attachment; filename="invoice.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQK
+--mixed-1--

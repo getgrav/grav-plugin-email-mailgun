@@ -1,0 +1,19 @@
+{
+  "recipient": "support+t8f2k@inbound.example.com",
+  "sender": "customer@example.net",
+  "from": "Ada Lovelace <customer@example.net>",
+  "subject": "Re: Café order",
+  "body-plain": "Thanks, the café invoice is attached.\r\n\r\nOn Mon, Example Support wrote:\r\n> Could you send the invoice?",
+  "body-html": "<p>Thanks, the café invoice is attached.</p><img src=\"cid:logo@example.net\">",
+  "stripped-text": "Thanks, the café invoice is attached.",
+  "stripped-signature": "",
+  "stripped-html": "<p>Thanks, the café invoice is attached.</p>",
+  "message-headers": "[[\"Received\", \"from mail.example.net (mail.example.net [203.0.113.9]) by mxa.mailgun.org with ESMTP id 66f1; Tue, 22 Sep 2026 14:05:01 +0000\"], [\"X-Mailgun-Spf\", \"Pass\"], [\"X-Mailgun-Dkim-Check-Result\", \"Pass\"], [\"X-Mailgun-Sscore\", \"0.3\"], [\"X-Mailgun-Sflag\", \"No\"], [\"Return-Path\", \"<customer@example.net>\"], [\"From\", \"\\\"Ada Lovelace\\\" <customer@example.net>\"], [\"To\", \"\\\"Example Support\\\" <support@inbound.example.com>\"], [\"Cc\", \"\\\"Charles Babbage\\\" <charles@example.org>\"], [\"Reply-To\", \"ada.replies@example.net\"], [\"Subject\", \"=?UTF-8?Q?Re:_Caf=C3=A9_order?=\"], [\"Date\", \"Tue, 22 Sep 2026 14:05:00 +0000\"], [\"Message-Id\", \"<CAF-Reply-002@Mail.Example.net>\"], [\"In-Reply-To\", \"<ticket-42.abc@example.com>\"], [\"References\", \"<ticket-42.root@example.com> <ticket-42.abc@example.com>\"], [\"Mime-Version\", \"1.0\"], [\"Content-Type\", [\"multipart/mixed\", {\"boundary\": \"mixed-1\"}]]]",
+  "Message-Id": "<CAF-Reply-002@Mail.Example.net>",
+  "timestamp": "",
+  "token": "",
+  "signature": "",
+  "domain": "inbound.example.com",
+  "attachments": "[{\"url\": \"https://storage-us-east4.api.mailgun.net/v3/domains/inbound.example.com/messages/BAABAQhhLyK0aW5ib3VuZC5leGFtcGxlLmNvbQ/attachments/0\", \"content-type\": \"image/png\", \"name\": \"logo.png\", \"size\": 8}, {\"url\": \"https://storage-us-east4.api.mailgun.net/v3/domains/inbound.example.com/messages/BAABAQhhLyK0aW5ib3VuZC5leGFtcGxlLmNvbQ/attachments/1\", \"content-type\": \"application/pdf\", \"name\": \"invoice.pdf\", \"size\": 9}]",
+  "message-url": "https://storage-us-east4.api.mailgun.net/v3/domains/inbound.example.com/messages/BAABAQhhLyK0aW5ib3VuZC5leGFtcGxlLmNvbQ"
+}
