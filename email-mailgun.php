@@ -9,6 +9,7 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Plugin;
 use Grav\Plugin\Email\Providers\Provider;
 use Grav\Plugin\Email\Providers\ProviderRegistry;
+use Grav\Plugin\EmailMailgun\Provider\MailgunInboundProvider;
 use Grav\Plugin\EmailMailgun\Provider\MailgunProvider;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -74,11 +75,15 @@ class EmailMailgunPlugin extends Plugin
             return;
         }
 
-        $registry->add(new MailgunProvider(
-            (array)$this->config->get('plugins.email-mailgun', []),
-            null,
-            fn (string $key): bool => $this->rememberSigningKey($key),
-        ));
+        $config = (array)$this->config->get('plugins.email-mailgun', []);
+        $keeper = fn (string $key): bool => $this->rememberSigningKey($key);
+
+        // The subclass that declares inbound mail only when this Email plugin
+        // has the interface for it (5.3 and later). Loading it on an older one
+        // would be a fatal error.
+        $registry->add(interface_exists(\Grav\Plugin\Email\Providers\Inbound\InboundCapable::class)
+            ? new MailgunInboundProvider($config, null, $keeper)
+            : new MailgunProvider($config, null, $keeper));
     }
 
     public function onEmailTransportDsn(Event $e): void

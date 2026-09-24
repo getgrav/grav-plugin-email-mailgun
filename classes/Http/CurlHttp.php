@@ -35,6 +35,16 @@ final class CurlHttp implements Http
     /** Bytes of response body kept before the transfer is abandoned. */
     public const MAX_BYTES = 10 * 1024 * 1024;
 
+    /**
+     * The defaults suit the webhook and DNS calls. Downloading a stored inbound
+     * message is the one call that needs more room, and passes its own.
+     */
+    public function __construct(
+        private readonly int $maxBytes = self::MAX_BYTES,
+        private readonly int $timeout = self::TIMEOUT,
+    ) {
+    }
+
     public function get(string $url, array $headers = []): array
     {
         return $this->run('GET', $url, null, $headers);
@@ -116,12 +126,13 @@ final class CurlHttp implements Http
         }
 
         $raw = '';
+        $max = $this->maxBytes;
 
         curl_setopt_array($handle, [
             \CURLOPT_CUSTOMREQUEST => $method,
             \CURLOPT_RETURNTRANSFER => false,
             \CURLOPT_CONNECTTIMEOUT => self::CONNECT_TIMEOUT,
-            \CURLOPT_TIMEOUT => self::TIMEOUT,
+            \CURLOPT_TIMEOUT => $this->timeout,
             \CURLOPT_FOLLOWLOCATION => true,
             \CURLOPT_MAXREDIRS => 2,
             \CURLOPT_SSL_VERIFYPEER => true,
@@ -129,13 +140,13 @@ final class CurlHttp implements Http
             \CURLOPT_PROTOCOLS => \CURLPROTO_HTTPS,
             \CURLOPT_REDIR_PROTOCOLS => \CURLPROTO_HTTPS,
             \CURLOPT_HTTPHEADER => $lines,
-            \CURLOPT_WRITEFUNCTION => static function ($_, string $chunk) use (&$raw): int {
+            \CURLOPT_WRITEFUNCTION => static function ($_, string $chunk) use (&$raw, $max): int {
                 $raw .= $chunk;
 
                 // Returning fewer bytes than were handed over is how cURL is
                 // told to stop, which is the point: a body over the cap is
                 // abandoned rather than assembled and then thrown away.
-                return \strlen($raw) > self::MAX_BYTES ? 0 : \strlen($chunk);
+                return \strlen($raw) > $max ? 0 : \strlen($chunk);
             },
         ]);
 
