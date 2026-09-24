@@ -1,5 +1,5 @@
 # v1.2.0
-## 09/23/2026
+## 09/24/2026
 
 1. [](#new)
     * **Receives mail through Mailgun routes.** With Email 5.3 or later, the provider offers an inbound receiver (`Provider\MailgunInbound`) that the Email plugin's inbound gateway finds on its own, so a helpdesk or any other plugin that reads mail sent to the site can take it from Mailgun. It reads all three things a route can do: a parsed `forward()` (the fields and the `attachment-N` files, never the request body, which PHP leaves empty for a multipart post), a raw forward to a URL ending in `mime` (`body-mime`, read byte for byte), and `store(notify=…)`, which becomes a reference the consumer's worker downloads later with `Accept: message/rfc2822` and the API key, only ever from an https `mailgun.net` address. The route's `recipient` is kept as the envelope recipient so a `support+token@` plus address survives, `stripped-text` is passed on as the provider's stripped text, and Mailgun's spam headers become the spam score and the SPF and DKIM results. Setup steps are in the README and in the receiver's own `instructions()`
