@@ -281,8 +281,9 @@ final class MailgunInbound implements InboundReceiver
             . 'instead, forward to this address, which ends in "mime": ' . $mimeUrl . ' '
             . 'For very large mail you can tick Store and notify with the same address instead of Forward; Mailgun keeps the '
             . 'message for three days and this site downloads it with the API key in the Email Mailgun plugin. '
-            . 'Mailgun signs every post with the HTTP webhook signing key, the same key the delivery reports use: find it under '
-            . 'Sending, then Webhooks, and paste it into the Webhook Signing Key field of the Email Mailgun plugin.';
+            . 'Mailgun signs every post with the HTTP webhook signing key, the same key the delivery reports use. Find it under '
+            . 'Send, then Webhooks, on the Configuration tab, and paste it into the Webhook Signing Key field of the Email '
+            . 'Mailgun plugin if it is not there already.';
     }
 
     // ------------------------------------------------------------- internals
